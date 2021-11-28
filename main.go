@@ -11,6 +11,7 @@ import (
 	"math/rand"
 	"time"
 
+	"gonum.org/v1/gonum/mat"
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/vg"
@@ -107,10 +108,7 @@ func main() {
 		i++
 	}
 
-	p, err := plot.New()
-	if err != nil {
-		panic(err)
-	}
+	p := plot.New()
 
 	p.Title.Text = "epochs vs cost"
 	p.X.Label.Text = "epochs"
@@ -142,4 +140,30 @@ func main() {
 		}
 		return true
 	})
+
+	a := mat.NewDense(4, 4, []float64{
+		1, 0, 0, 0,
+		0, 1, 0, 0,
+		0, 0, 0, 1,
+		0, 0, 1, 0,
+	})
+	var eig mat.Eigen
+	ok := eig.Factorize(a, mat.EigenRight)
+	if !ok {
+		panic("Eigendecomposition failed")
+	}
+	fmt.Println("\neigenvalues")
+	for i, value := range eig.Values(nil) {
+		fmt.Println(i, cmplx.Abs(value))
+	}
+	vectors := mat.CDense{}
+	eig.VectorsTo(&vectors)
+	r, c := vectors.Dims()
+	fmt.Println("\neigenvectors")
+	for i := 0; i < r; i++ {
+		for j := 0; j < c; j++ {
+			fmt.Printf(" %f", vectors.At(i, j))
+		}
+		fmt.Printf("\n")
+	}
 }
